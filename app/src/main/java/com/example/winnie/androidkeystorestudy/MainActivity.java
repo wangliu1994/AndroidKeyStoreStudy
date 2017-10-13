@@ -13,8 +13,6 @@ import com.example.winnie.androidkeystorestudy.sample.SampleActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-
-
     private EditText passwordEdit;
     private TextView encryptText;
     private TextView decryptText;
