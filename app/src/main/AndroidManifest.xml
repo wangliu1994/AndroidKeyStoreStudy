@@ -3,7 +3,6 @@
     package="com.example.winnie.androidkeystorestudy">
 
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
-    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
     <application
         android:allowBackup="true"

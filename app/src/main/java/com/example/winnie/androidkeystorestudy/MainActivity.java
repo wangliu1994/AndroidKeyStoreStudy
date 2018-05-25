@@ -17,6 +17,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView encryptText;
     private TextView decryptText;
 
+    private EditText passwordEdit1;
+    private TextView encryptText1;
+    private TextView decryptText1;
+
     private String encryptString;
 
     private AndroidKeyStoreHelper helper;
@@ -32,32 +36,36 @@ public class MainActivity extends AppCompatActivity {
         encryptText = (TextView) findViewById(R.id.encrypt_text);
         decryptText = (TextView) findViewById(R.id.decrypt_text);
 
-        FingerprintManager manager = getSystemService(FingerprintManager.class);
-        helper = new AndroidKeyStoreHelper(manager, MainActivity.this);
-        helper.setEncryptListener(new AndroidKeyStoreHelper.EncryptListener() {
-            @Override
-            public void onEncryptSuccess(String encryptCode) {
-                encryptString = encryptCode;
-                encryptText.setText("加密成功 encrypt code-> " + encryptCode);
-            }
+        passwordEdit1 = (EditText) findViewById(R.id.password1);
+        encryptText1 = (TextView) findViewById(R.id.encrypt_text1);
+        decryptText1 = (TextView) findViewById(R.id.decrypt_text1);
 
-            @Override
-            public void onEncryptFailed(String msg) {
-                encryptText.setText(msg);
-            }
-
-        });
-        helper.setDecryptListener(new AndroidKeyStoreHelper.DecryptListener() {
-            @Override
-            public void onDecryptSuccess(String decryptCode) {
-                decryptText.setText("解密成功 decrypt code-> " + decryptCode);
-            }
-
-            @Override
-            public void onDecryptFailed(String msg) {
-                decryptText.setText(msg);
-            }
-        });
+//        FingerprintManager manager = getSystemService(FingerprintManager.class);
+//        helper = new AndroidKeyStoreHelper(manager, MainActivity.this);
+//        helper.setEncryptListener(new AndroidKeyStoreHelper.EncryptListener() {
+//            @Override
+//            public void onEncryptSuccess(String encryptCode) {
+//                encryptString = encryptCode;
+//                encryptText.setText("加密成功 encrypt code-> " + encryptCode);
+//            }
+//
+//            @Override
+//            public void onEncryptFailed(String msg) {
+//                encryptText.setText(msg);
+//            }
+//
+//        });
+//        helper.setDecryptListener(new AndroidKeyStoreHelper.DecryptListener() {
+//            @Override
+//            public void onDecryptSuccess(String decryptCode) {
+//                decryptText.setText("解密成功 decrypt code-> " + decryptCode);
+//            }
+//
+//            @Override
+//            public void onDecryptFailed(String msg) {
+//                decryptText.setText(msg);
+//            }
+//        });
 
 //        keyStoreHelper = new KeyStoreHelper();
         findViewById(R.id.encode_button).setOnClickListener(new View.OnClickListener() {
@@ -67,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
                 if(password == null || password.length()==0){
                     Toast.makeText(MainActivity.this, "please input your password", Toast.LENGTH_SHORT).show();
                 }else {
-                    helper.encrypt(password);
                     encryptText.setText("验证指纹中....");
+                    helper.encrypt(password);
                 }
 //                encryptText.setText(keyStoreHelper.encode());
             }
@@ -80,8 +88,8 @@ public class MainActivity extends AppCompatActivity {
                 if(encryptString == null || encryptString.length()==0){
                     Toast.makeText(MainActivity.this, "please encrypt your password first", Toast.LENGTH_SHORT).show();
                 }else {
-                    helper.decrypt(encryptString);
                     decryptText.setText("验证指纹中....");
+                    helper.decrypt(encryptString);
                 }
 //                decryptText.setText(keyStoreHelper.decode());
             }
@@ -92,6 +100,24 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, SampleActivity.class);
                 startActivity(intent);
+            }
+        });
+
+
+
+        findViewById(R.id.encode_button1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String password = passwordEdit1.getText().toString();
+                encryptString = LoginKeyStoreUtils.encryptString(MainActivity.this, password);
+                encryptText1.setText(encryptString);
+            }
+        });
+
+        findViewById(R.id.decode_button1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                decryptText1.setText(LoginKeyStoreUtils.decryptString(MainActivity.this, encryptString));
             }
         });
     }

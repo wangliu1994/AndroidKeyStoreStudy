@@ -21,6 +21,11 @@ public class KeyStoreHelper {
 
     private KeyGenerator keyGenerator;
     private SecretKey key;
+
+    /**
+     * 得到加密秘钥
+     * @return
+     */
     public String encode() {
 
         //对称key即SecretKey创建和导入，假设双方约定使用DES算法来生成对称密钥

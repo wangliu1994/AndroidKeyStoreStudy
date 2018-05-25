@@ -71,7 +71,7 @@ public class AndroidKeyStoreHelper {
 
             KeyGenerator generator = KeyGenerator.getInstance(KEY_ALGORITHM, KEY_STORE_TYPE);
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(KEY_NAME, PURPOSE);
-            builder.setUserAuthenticationRequired(false);
+            builder.setUserAuthenticationRequired(true);
             builder.setBlockModes(KeyProperties.BLOCK_MODE_CBC);
             builder.setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -124,44 +124,58 @@ public class AndroidKeyStoreHelper {
         if (cipher == null) {
             return;
         }
-        FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
-        manager.authenticate(cryptoObject, null, 0, new FingerprintManager.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
-                Cipher cipherNew = result.getCryptoObject().getCipher();
-                try {
-                    byte[] encrypted = cipherNew.doFinal(content.getBytes());
-                    IV = cipherNew.getIV();
-                    String resultString = Base64.encodeToString(encrypted, Base64.URL_SAFE);
-                    if (encryptListener != null) {
-                        encryptListener.onEncryptSuccess(new String(resultString));
-                    }
-                } catch (IllegalBlockSizeException | BadPaddingException e) {
-                    e.printStackTrace();
-                }
-            }
 
-            @Override
-            public void onAuthenticationError(int errorCode, CharSequence errString) {
-                if (encryptListener != null) {
-                    encryptListener.onEncryptFailed(errString.toString());
-                }
+        //直接加密
+        try {
+            byte[] encrypted = cipher.doFinal(content.getBytes());
+            IV = cipher.getIV();
+            String resultString = Base64.encodeToString(encrypted, Base64.URL_SAFE);
+            if (encryptListener != null) {
+                encryptListener.onEncryptSuccess(new String(resultString));
             }
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+        }
 
-            @Override
-            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
-                if (encryptListener != null) {
-                    encryptListener.onEncryptFailed(helpString.toString());
-                }
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                if (encryptListener != null) {
-                    encryptListener.onEncryptFailed("指纹未通过。再试一次");
-                }
-            }
-        }, new Handler());
+        //指纹授权之后加密
+//        FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
+//        manager.authenticate(cryptoObject, null, 0, new FingerprintManager.AuthenticationCallback() {
+//            @Override
+//            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+//                Cipher cipherNew = result.getCryptoObject().getCipher();
+//                try {
+//                    byte[] encrypted = cipherNew.doFinal(content.getBytes());
+//                    IV = cipherNew.getIV();
+//                    String resultString = Base64.encodeToString(encrypted, Base64.URL_SAFE);
+//                    if (encryptListener != null) {
+//                        encryptListener.onEncryptSuccess(new String(resultString));
+//                    }
+//                } catch (IllegalBlockSizeException | BadPaddingException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            @Override
+//            public void onAuthenticationError(int errorCode, CharSequence errString) {
+//                if (encryptListener != null) {
+//                    encryptListener.onEncryptFailed(errString.toString());
+//                }
+//            }
+//
+//            @Override
+//            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+//                if (encryptListener != null) {
+//                    encryptListener.onEncryptFailed(helpString.toString());
+//                }
+//            }
+//
+//            @Override
+//            public void onAuthenticationFailed() {
+//                if (encryptListener != null) {
+//                    encryptListener.onEncryptFailed("指纹未通过。再试一次");
+//                }
+//            }
+//        }, new Handler());
 
     }
 
@@ -198,43 +212,56 @@ public class AndroidKeyStoreHelper {
         if (cipher == null) {
             return;
         }
-        FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
-        manager.authenticate(cryptoObject, null, 0, new FingerprintManager.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
-                Cipher cipher1 = result.getCryptoObject().getCipher();
-                try {
-                    byte[] encrypted = cipher1.doFinal(Base64.decode(content.getBytes(), Base64.URL_SAFE));
-                    if (decryptListener != null) {
-                        decryptListener.onDecryptSuccess(new String(encrypted));
-                    }
 
-                } catch (IllegalBlockSizeException | BadPaddingException e) {
-                    e.printStackTrace();
-                }
+        //直接解密
+        try {
+            byte[] encrypted = cipher.doFinal(Base64.decode(content.getBytes(), Base64.URL_SAFE));
+            if (decryptListener != null) {
+                decryptListener.onDecryptSuccess(new String(encrypted));
             }
 
-            @Override
-            public void onAuthenticationError(int errorCode, CharSequence errString) {
-                if (decryptListener != null) {
-                    decryptListener.onDecryptFailed(errString.toString());
-                }
-            }
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
+        }
 
-            @Override
-            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
-                if (decryptListener != null) {
-                    decryptListener.onDecryptFailed(helpString.toString());
-                }
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                if (decryptListener != null) {
-                    decryptListener.onDecryptFailed("指纹未通过。再试一次");
-                }
-            }
-        }, new Handler());
+        //指纹授权之后解密
+//        FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
+//        manager.authenticate(cryptoObject, null, 0, new FingerprintManager.AuthenticationCallback() {
+//            @Override
+//            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+//                Cipher cipher1 = result.getCryptoObject().getCipher();
+//                try {
+//                    byte[] encrypted = cipher1.doFinal(Base64.decode(content.getBytes(), Base64.URL_SAFE));
+//                    if (decryptListener != null) {
+//                        decryptListener.onDecryptSuccess(new String(encrypted));
+//                    }
+//
+//                } catch (IllegalBlockSizeException | BadPaddingException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            @Override
+//            public void onAuthenticationError(int errorCode, CharSequence errString) {
+//                if (decryptListener != null) {
+//                    decryptListener.onDecryptFailed(errString.toString());
+//                }
+//            }
+//
+//            @Override
+//            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+//                if (decryptListener != null) {
+//                    decryptListener.onDecryptFailed(helpString.toString());
+//                }
+//            }
+//
+//            @Override
+//            public void onAuthenticationFailed() {
+//                if (decryptListener != null) {
+//                    decryptListener.onDecryptFailed("指纹未通过。再试一次");
+//                }
+//            }
+//        }, new Handler());
     }
 
     public interface EncryptListener {
